@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorator="LayoutPadrao">
+
+<head>
+	<title>Pesquisa de Título</title>
+</head>
+
+<section layout:fragment="conteudo">
+	<section class="card mt-3">
+		<div class="card-header">
+			<div>
+				<h1 class="float-left">Listagem de títulos</h1>
+				<a class="btn btn-dark float-right mt-2" href="/titulos/novo">Cadastra novo título</a>
+			</div>
+			
+		</div>
+		<form method="GET" class="form-horizontal" action="/titulos"
+			th:object="${filtro}">
+			<div class="form-group">
+				<div class="col-sm-4">
+					<div class="input-group">
+						<input class="form-control" placeholder="Qual título você está procurando" autofocus="autofocus"
+							th:field="*{descricao}">
+						<span class="input-group-btn">
+							<button type="submit" class="btn btn-dark">
+								<i class="fa fa-search"></i>
+							</button>
+						</span>
+					</div>
+				</div>
+			</div>
+		</form>		
+		<div class="card-body">
+		<div layout:insert="MensagemGeral"></div>
+			<table class="table table-bordered table-hover">
+				<thead class="thead-dark">
+					<tr>
+						<th class="text-center" scope="col">#</th>
+						<th scope="col">Descrição</th>
+						<th class="text-center" scope="col">Data de vencimento</th>
+						<th class="text-right" scope="col">Valor</th>
+						<th class="text-center" scope="col">Status</th>
+						<th class="text-center" scope="col"></th>
+					</tr>
+				</thead>					
+				<tbody>	
+				
+				<tr th:each="titulo : ${titulos}" th:value="${titulos}">
+					<td class="text-center" scope="row" th:text="${titulo.codigo}"></td>
+					<td scope="row" th:text="${titulo.descricao}"></td>
+					<td class="text-center" scope="row" th:text="${{titulo.dataVencimento}}"></td>
+					<td class="text-right" scope="row" th:text="|R$ ${{titulo.valor}}|"></td>
+					<td class="text-center" scope="row" th:attr="data-role=${titulo.codigo}">
+						<span class="badge" th:text="${titulo.status.descricao}"
+							th:classappend="${titulo.pendente ? 'badge-danger' : 'badge-success'}"></span>
+					</td>
+					<td class="text-center container-icons">
+						<a class="btn btn-link" th:href="@{/titulos/{codigo}(codigo=${titulo.codigo})}"
+							title="Editar" rel="tooltip" data-placement="top">
+							<span class="fa fa-pencil-square-o"></span>
+						</a>
+						<a class="btn btn-link" data-toggle="modal" data-target="#modalExclusao"
+							th:attr="data-codigo=${titulo.codigo}, data-descricao=${titulo.descricao}"
+								title="Excluir" rel="tooltip" data-placement="top">
+							<span class="fa fa-trash"></span>
+						</a>
+						
+						<a class="btn btn-link js-atualizar-status" th:if="${titulo.pendente}" 
+							th:attr="data-codigo=${titulo.codigo}"
+							title="Receber" rel="tooltip" data-placment="top" th:href="@{/titulos/{codigo}/receber(codigo=${titulo.codigo})}">
+							
+							<span class="fa fa-check"></span>		
+						</a>
+					</td>
+				</tr>				
+					<tr>
+						<th colspan="6" th:if="${#lists.isEmpty(titulos)}">Nenhum título foi encontrado</th>						
+					</tr>									
+				</tbody>
+			</table>
+		</div>
+		<div layout:insert="ModalConfirmacaoExclusao"></div>
+	</section>
+</section>	
+</html>
